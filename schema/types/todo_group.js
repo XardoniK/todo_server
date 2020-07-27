@@ -15,7 +15,7 @@ const TodoGroupType = new GraphQLObjectType({
 		name: {type: GraphQLString},
 		sort: {type: GraphQLInt},
 		active: {type: GraphQLBoolean},
-		todos: {
+		todoItems: {
 			type: GraphQLList(TodoType),
 			resolve(parent, args) {
 				return TodoModel.find({todoGroupID: parent.id});

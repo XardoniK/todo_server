@@ -14,16 +14,11 @@ const TodoType = new GraphQLObjectType({
 	fields: () => ({
 		id: {type: GraphQLID},
 		// hash: {type: GraphQLString},
+		checked: {type: GraphQLBoolean},
 		name: {type: GraphQLString},
 		active: {type: GraphQLBoolean, },
 		sort: {type: GraphQLInt},
 		todoGroupID: {type: GraphQLID},
-		todoGroup: {
-			type: TodoGroupType,
-			resolve(parent, args) {
-				return TodoGroupModel.findById(parent.todoGroupID);
-			}
-		},
 	}),
 });
 

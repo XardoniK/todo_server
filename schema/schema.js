@@ -17,18 +17,22 @@ import TodoGroupModel from "../models/todo_group";
 const RootQueryType = new GraphQLObjectType({
 	name: 'RootQueryType',
 	fields: {
-		todoGroupList: {
+		todoItems: {
+			type: new GraphQLList(TodoType),
+			resolve(parent, args) {
+				return TodoModel.find();
+			}
+		},
+		todoLists: {
+			type: new GraphQLList()
+		}
+		todoGroups: {
 			type: new GraphQLList(TodoGroupType),
 			resolve(parent, args) {
 				return TodoGroupModel.find();
 			}
 		},
-		todoList: {
-			type: new GraphQLList(TodoType),
-			resolve(parent, args) {
-				return TodoModel.find();
-			}
-		}
+
 	}
 });
 
@@ -65,6 +69,25 @@ const Mutation = new GraphQLObjectType({
 				const todo = TodoModel.findByIdAndRemove(id);
 
 				//later change {deleted} to true
+				return todo;
+			}
+		},
+		todoSetChecked: {
+			type: TodoType,
+			args: {
+				id: {type: new GraphQLNonNull(GraphQLID)},
+			},
+			resolve(parent, args) {
+				const {id} = args;
+
+				const todo = TodoModel.findById(id, (err, todo) => {
+					console.log(todo.checked);
+					todo.checked = !todo.checked;
+					console.log(todo.checked);
+
+					todo.save();
+				});
+
 				return todo;
 			}
 		},
