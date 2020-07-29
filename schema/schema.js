@@ -1,35 +1,37 @@
 import {
 	GraphQLObjectType,
+	GraphQLSchema,
 	GraphQLString,
 	GraphQLID,
-	GraphQLInt,
-	GraphQLSchema,
 	GraphQLList,
-	GraphQLNonNull, GraphQLBoolean
+	GraphQLNonNull,
 } from 'graphql';
-// import Book from '../models/book';
-// import Author from '../models/author';
-import TodoType from "./types/todo";
-import TodoModel from "../models/todo";
+import TodoItemType from "./types/todo_item";
+import TodoItemModel from "../models/todo_item";
 import TodoGroupType from "./types/todo_group";
 import TodoGroupModel from "../models/todo_group";
+import TodoListType from "./types/todo_list";
+import TodoListModel from "../models/todo_list";
 
 const RootQueryType = new GraphQLObjectType({
 	name: 'RootQueryType',
 	fields: {
 		todoItems: {
-			type: new GraphQLList(TodoType),
+			type: new GraphQLList(TodoItemType),
 			resolve(parent, args) {
-				return TodoModel.find();
+				return TodoItemModel.find({});
 			}
 		},
 		todoLists: {
-			type: new GraphQLList()
-		}
+			type: new GraphQLList(TodoListType),
+			resolve(parent, args) {
+				return TodoListModel.find({});
+			}
+		},
 		todoGroups: {
 			type: new GraphQLList(TodoGroupType),
 			resolve(parent, args) {
-				return TodoGroupModel.find();
+				return TodoGroupModel.find({});
 			}
 		},
 
@@ -39,51 +41,44 @@ const RootQueryType = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
 	name: 'Mutation',
 	fields: {
-		todoAdd: {
-			type: TodoType,
+		todoItemAdd: {
+			type: TodoItemType,
 			args: {
 				name: {type: new GraphQLNonNull(GraphQLString)},
-				todoGroupID: {type: new GraphQLNonNull(GraphQLID)},
+				todoListID: {type: new GraphQLNonNull(GraphQLID)},
 			},
 			resolve(parent, args) {
-				const {name, todoGroupID} = args;
+				const {name, todoListID} = args;
 
-				console.log(name, todoGroupID);
-
-				const todo = new TodoModel({
+				const todo = new TodoItemModel({
 					name,
-					todoGroupID,
+					todoListID,
 				});
 
 				return todo.save();
 			}
 		},
-		todoRemove: {
-			type: TodoType,
+		todoItemRemove: {
+			type: TodoItemType,
 			args: {
 				id: {type: new GraphQLNonNull(GraphQLID)},
 			},
 			resolve(parent, args) {
 				const {id} = args;
 
-				const todo = TodoModel.findByIdAndRemove(id);
-
-				//later change {deleted} to true
-				return todo;
+				return TodoItemModel.findByIdAndRemove(id);
 			}
 		},
-		todoSetChecked: {
-			type: TodoType,
+		todoItemSetChecked: {
+			type: TodoItemType,
 			args: {
 				id: {type: new GraphQLNonNull(GraphQLID)},
 			},
 			resolve(parent, args) {
 				const {id} = args;
 
-				const todo = TodoModel.findById(id, (err, todo) => {
-					console.log(todo.checked);
+				const todo = TodoItemModel.findById(id, (err, todo) => {
 					todo.checked = !todo.checked;
-					console.log(todo.checked);
 
 					todo.save();
 				});
@@ -91,28 +86,77 @@ const Mutation = new GraphQLObjectType({
 				return todo;
 			}
 		},
-		todoRemoveAll: {
-			type: TodoType,
+		todoItemRemoveAll: {
+			type: TodoItemType,
 			args: {},
 			resolve(parent, args) {
-				return TodoModel.find({}).remove();
+				return TodoItemModel.find({}).remove();
 			},
+		},
+		todoListAdd: {
+			type: TodoListType,
+			args: {
+				name: {type: new GraphQLNonNull(GraphQLString)},
+				todoGroupID: {type: GraphQLID},
+			},
+			resolve(parent, args) {
+				const {name, todoGroupID} = args;
+
+				const todoList = new TodoListModel({
+					name,
+					todoGroupID
+				});
+
+				return todoList.save();
+			}
+		},
+		todoListRemove: {
+			type: TodoListType,
+			args: {
+				id: {type: new GraphQLNonNull(GraphQLID)},
+			},
+			resolve(parent, args) {
+				const {id} = args;
+
+				return TodoListModel.findByIdAndRemove(id);
+			}
 		},
 		todoGroupAdd: {
 			type: TodoGroupType,
 			args: {
 				name: {type: new GraphQLNonNull(GraphQLString)},
-				// active: {type: GraphQLBoolean},
 			},
 			resolve(parent, args) {
-				const {name, active} = args;
+				const {name} = args;
 
 				const todoGroup = new TodoGroupModel({
 					name,
-					// active
 				});
 
 				return todoGroup.save();
+			}
+		},
+		todoGroupRemove: {
+			type: TodoGroupType,
+			args: {
+				id: {type: new GraphQLNonNull(GraphQLID)},
+			},
+			resolve(parent, args) {
+				const {id} = args;
+
+				return TodoGroupModel.findByIdAndRemove(id);
+			}
+		},
+		clearDB: {
+			type: TodoGroupType,
+			args: {},
+			resolve(parent, args) {
+				console.log('inside');
+				TodoListModel.remove();
+				TodoItemModel.remove();
+				TodoGroupModel.remove();
+
+				console.log(TodoGroupModel.find());
 			}
 		}
 	}

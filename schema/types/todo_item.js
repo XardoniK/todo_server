@@ -9,19 +9,18 @@ import {
 import TodoGroupType from "./todo_group";
 import TodoGroupModel from "../../models/todo_group";
 
-const TodoType = new GraphQLObjectType({
-	name: 'Todo',
+const TodoItemType = new GraphQLObjectType({
+	name: 'TodoItem',
 	fields: () => ({
 		id: {type: GraphQLID},
 		// hash: {type: GraphQLString},
 		checked: {type: GraphQLBoolean},
 		name: {type: GraphQLString},
-		active: {type: GraphQLBoolean, },
+		active: {type: GraphQLBoolean},
 		sort: {type: GraphQLInt},
-		todoGroupID: {type: GraphQLID},
+		todoListID: {type: GraphQLID},
 	}),
 });
 
 
-
-export default TodoType;
+export default TodoItemType;

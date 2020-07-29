@@ -5,8 +5,10 @@ import {
 	GraphQLInt,
 	GraphQLList, GraphQLBoolean,
 } from 'graphql';
-import TodoType from "./todo";
-import TodoModel from "../../models/todo";
+import TodoItemType from "./todo_item";
+import TodoItemModel from "../../models/todo_item";
+import TodoListType from "./todo_list";
+import TodoListModel from "../../models/todo_list";
 
 const TodoGroupType = new GraphQLObjectType({
 	name: 'TodoGroup',
@@ -15,10 +17,10 @@ const TodoGroupType = new GraphQLObjectType({
 		name: {type: GraphQLString},
 		sort: {type: GraphQLInt},
 		active: {type: GraphQLBoolean},
-		todoItems: {
-			type: GraphQLList(TodoType),
+		todoLists: {
+			type: GraphQLList(TodoListType),
 			resolve(parent, args) {
-				return TodoModel.find({todoGroupID: parent.id});
+				return TodoListModel.find({todoGroupID: parent.id});
 			}
 		}
 		// items: {

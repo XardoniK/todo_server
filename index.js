@@ -17,7 +17,7 @@ import {ApolloServer} from "apollo-server";
 
 const server = new ApolloServer({schema});
 
-mongoose.connect('mongodb://127.0.0.1:27017/test');
+mongoose.connect('mongodb://127.0.0.1:27017/test2');
 
 server.listen(4000).then(({url}) => {
 	console.log(`Server at ${url}`);
